@@ -24,7 +24,11 @@
  * @license  http://www.gnu.org/licenses/gpl-3.0.txt GPLv3
  * @link     https://www.github.com/aces/Loris/
  */
-abstract class LorisIntegrationTest extends PHPUnit_Framework_TestCase
+
+set_include_path(get_include_path().":../php:");
+require_once __DIR__ . "/../unittests/Loris_PHPUnit_Database_TestCase.php";
+
+abstract class LorisIntegrationTest extends Loris_PHPUnit_Database_TestCase
 {
     /**
      * A reference to the Selenium WebDriver object for the test

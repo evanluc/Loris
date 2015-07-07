@@ -18,9 +18,15 @@ require_once "HelpFile.class.inc";
 class helpEditorTestIntegrationTest extends LorisIntegrationTest
 {
 
+    public function getDataSet()
+    {
+        
+    }
+    
     /**
      * Tests that, when clicking the help_editor icon the
-     * pull-down appears and is visible. Steps one and two on help_module test plan.
+     * pull-down appears and is visible with the appropriate title.
+     * Steps one and two on help_module test plan.
      *
      * @author Evan McIlroy <evanmcilroy@gmail.com>
      * @return void
@@ -42,8 +48,16 @@ class helpEditorTestIntegrationTest extends LorisIntegrationTest
         $data      = $help_file->toArray();
         
         $this->assertEquals($data['topic'], $helpTitle->getText());
-
     }
+
+    /**
+     * Tests that, when clicking the help_editor close
+     * button, the pull-down is no longer visibile to the user.
+     * Step three on the help_module test plan.
+     *
+     * @author Evan McIlroy <evanmcilroy@gmail.com>
+     * @return void
+     */
     function testHelpEditorButtonClose()
     {
         $this->webDriver->get($this->url . "?test_name=help_editor");
@@ -56,8 +70,12 @@ class helpEditorTestIntegrationTest extends LorisIntegrationTest
 
         $this->assertEquals(false, $contextualPulldown->isDisplayed());
         
-    }    
-        /**
+    }
+    function helpEditorLastUpdate(){
+        
+    }
+    
+    /**
      * Tests that, when loading the help_editor module, some
      * text appears in the body.
      *

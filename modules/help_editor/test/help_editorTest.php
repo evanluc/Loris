@@ -1,6 +1,6 @@
 <?php
 /**
- * help_editor automated integration tests
+ * Help_editor automated integration tests
  *
  * PHP Version 5
  *
@@ -11,10 +11,53 @@
  * @link     https://github.com/aces/Loris
  */
 
+set_include_path(get_include_path().":../php:");
 require_once __DIR__ . "/../../../test/integrationtests/LorisIntegrationTest.class.inc";
+require_once "HelpFile.class.inc";
+
 class helpEditorTestIntegrationTest extends LorisIntegrationTest
 {
+
     /**
+     * Tests that, when clicking the help_editor icon the
+     * pull-down appears and is visible. Steps one and two on help_module test plan.
+     *
+     * @author Evan McIlroy <evanmcilroy@gmail.com>
+     * @return void
+     */
+    function testHelpEditorContextualPullDown()
+    {
+        $this->webDriver->get($this->url . "?test_name=help_editor");
+        $helpEditorButton = $this->webDriver->findElement(WebDriverBy::cssSelector(".navbar-brand.pull-right.help-button"));
+        $helpEditorButton->click();
+
+        $contextualPulldown = $this->webDriver->findElement(WebDriverBy::cssSelector(".help-content.visible"));
+        $this->assertEquals(true, $contextualPulldown->isDisplayed());
+
+        $helpTitle = $contextualPulldown->findElement(WebDriverBy::cssSelector("h3"));
+        
+        $helpID = HelpFile::hashToID(md5('help_editor'));
+
+        $help_file = HelpFile::factory($helpID);
+        $data      = $help_file->toArray();
+        
+        $this->assertEquals($data['topic'], $helpTitle->getText());
+
+    }
+    function testHelpEditorButtonClose()
+    {
+        $this->webDriver->get($this->url . "?test_name=help_editor");
+        $helpEditorButton = $this->webDriver->findElement(WebDriverBy::cssSelector(".navbar-brand.pull-right.help-button"));
+        $helpEditorButton->click();
+
+        $contextualPulldown = $this->webDriver->findElement(WebDriverBy::cssSelector(".help-content.visible"));
+        $closeButton = $contextualPulldown->findElement(WebDriverBy::cssSelector("#helpclose"));
+        $closeButton->click();
+
+        $this->assertEquals(false, $contextualPulldown->isDisplayed());
+        
+    }    
+        /**
      * Tests that, when loading the help_editor module, some
      * text appears in the body.
      *
@@ -37,6 +80,30 @@ class helpEditorTestIntegrationTest extends LorisIntegrationTest
         $this->webDriver->get($this->url . "?test_name=help_editor&subtest=edit_help_content");
         $bodyText = $this->webDriver->findElement(WebDriverBy::cssSelector("body"))->getText();
         $this->assertContains("Edit Help Content", $bodyText);
+    }
+
+    function testHelpEditorSelectionFilter()
+    {
+        $DB = Database::singleton();
+        //Get the default values
+        if (Utility::isErrorX($DB)) {
+            return PEAR::raiseError("Could not connect to database: ".
+                                     $DB->getMessage());
+        }
+
+        $this->webDriver->get($this->url . "?test_name=help_editor");
+        $bodyText = $this->webDriver->findElement(WebDriverBy::cssSelector("body"))->getText();
+        
+        $help = $DB->pselectRow("SELECT topic from help", array());
+        foreach ($help as $val){
+            $this->assertContains($val, $bodyText);
+        }        
+    }
+
+    function permissionsTest(){
+        
+        
+
     }
 }
 ?>
